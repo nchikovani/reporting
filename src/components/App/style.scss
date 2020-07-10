@@ -1,2 +1,6 @@
+@import '../../styles/reset';
 @import '../../styles/vars';
-@import '../../styles/vars';
+#root {
+  background: #fafafa;
+  height: 100vh;
+}

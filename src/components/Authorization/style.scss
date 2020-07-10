@@ -1,0 +1,21 @@
+.authorization-container {
+  width: 100%;
+  height: 80vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.authorization {
+  width: 25em;
+  padding: 1em;
+  border: solid 1px black;
+  border-radius: 0.4em;
+}
+.authorization__input {
+  width: 100%;
+  margin-bottom: 1em;
+}
+.authorization__button-container {
+  display: flex;
+  justify-content: flex-end;
+}
