@@ -20,19 +20,31 @@ function Authorization() {
         event.preventDefault();
     };
     const handleClickAuthorization = () => {
-        console.log(values.login, values.password);
+        const data = {login: values.login, password: values.password};
         fetch('/login', {
             method: 'POST',
-            body: {login: values.login, password: values.password}
+            body:  JSON.stringify(data),
+            headers: {
+                'Content-Type': 'application/json'
+            }
         }).then(
             response => {
-                console.log(response)
+                return response.json().then(body => {
+                    if(body.message) {
+                        alert(body.message);
+                    } else if (body.role === 'admin'){
+                        window.location.href = window.location.href + 'admin';
+                    } else if (body.role === 'user') {
+                        window.location.href = window.location.href + 'user/' + body.login;
+                    }
+                });
             },
             error => {
-                console.log(error)
+                alert(error);
             }
         );
     }
+    document.title = "Авторизация";
     return(
         <div className="authorization-container">
             <div className="authorization">
