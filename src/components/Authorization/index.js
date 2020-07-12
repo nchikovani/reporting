@@ -1,6 +1,6 @@
 import React from 'react';
 import './style.scss';
-import {Button, Input, InputAdornment, IconButton} from '@material-ui/core';
+import {Button, Input, InputAdornment, IconButton, ButtonGroup} from '@material-ui/core';
 import Visibility from '@material-ui/icons/Visibility';
 import VisibilityOff from '@material-ui/icons/VisibilityOff';
 
@@ -44,6 +44,29 @@ function Authorization() {
             }
         );
     }
+    const handleClickRegistration = () => {
+        const data = {login: values.login, password: values.password};
+        fetch('/register', {
+            method: 'POST',
+            body:  JSON.stringify(data),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }).then(
+            response => {
+                return response.json().then(body => {
+                    if(body.message) {
+                        alert(body.message);
+                    } else {
+                        window.location.href = window.location.href + 'user/' + body.login;
+                    }
+                });
+            },
+            error => {
+                alert(error);
+            }
+        );
+    }
     document.title = "Авторизация";
     return(
         <div className="authorization-container">
@@ -73,11 +96,14 @@ function Authorization() {
                     }
                 />
                 <div className="authorization__button-container">
-                    <Button
-                        variant="outlined"
-                        color="primary"
-                        onClick={handleClickAuthorization}
-                    >Войти</Button>
+                    <ButtonGroup color="primary" aria-label="outlined primary button group">
+                        <Button
+                            onClick={handleClickRegistration}
+                        >Зарегистрироваться</Button>
+                        <Button
+                            onClick={handleClickAuthorization}
+                        >Войти</Button>
+                    </ButtonGroup>
                 </div>
             </div>
         </div>
