@@ -19,7 +19,8 @@ mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true}, functi
 });
 const Users = require('./models/Users');
 require('./config/passport');
-// const userAdmin = new Users({login: 'admin', password: 'admin', role: 'admin'});
+// const userAdmin = new Users({login: 'admin', role: 'admin'});
+// userAdmin.setPassword('admin');
 // userAdmin.save();
 app.get("*", (req, res) => {
     res.sendFile(path.join(__dirname, "build", "index.html"));
@@ -64,9 +65,9 @@ app.post('/register', function(req, res){
             } else {
                 const newUser = new Users({
                     login: login,
-                    password: password,
                     role: 'user',
                 });
+                newUser.setPassword(password);
                 newUser.save()
                     .then(user => {
                         req.login(user, {session: false}, (err) => {
