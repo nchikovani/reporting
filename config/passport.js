@@ -1,10 +1,12 @@
 const mongoose = require('mongoose');
 const passport = require('passport');
 const LocalStrategy = require('passport-local');
+const JwtStrategy = require('passport-jwt').Strategy;
+const ExtractJwt = require('passport-jwt').ExtractJwt;
 
 const Users = mongoose.model('Users');
 
-passport.use('login', new LocalStrategy({ // or whatever you want to use
+passport.use('login', new LocalStrategy({
         usernameField: 'login',
         passwordField: 'password',
     },
@@ -18,6 +20,24 @@ passport.use('login', new LocalStrategy({ // or whatever you want to use
                 return done(null, false, { message: 'Incorrect password.' });
             }
             return done(null, user);
+        });
+    }
+));
+
+passport.use(new JwtStrategy({
+        jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+        secretOrKey   : 'secret'
+    },
+    function (jwt_payload, done) {
+        Users.findOne({_id: jwt_payload.id}, function(err, user) {
+            if (err) {
+                return done(err, false);
+            }
+            if (user) {
+                return done(null, user);
+            } else {
+                return done(null, false);
+            }
         });
     }
 ));
