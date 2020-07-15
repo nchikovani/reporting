@@ -1,28 +1,38 @@
 import React from 'react';
 import './style.scss';
-import {Button, Input, InputAdornment, IconButton, ButtonGroup} from '@material-ui/core';
+import {Button, Input, InputAdornment, IconButton, Link} from '@material-ui/core';
 import Visibility from '@material-ui/icons/Visibility';
 import VisibilityOff from '@material-ui/icons/VisibilityOff';
+import classNames from 'classnames';
 import {addToken} from "../../actions";
 import store from '../../store';
 
 function Authorization(props) {
     const [values, setValues] = React.useState({
-        password: '',
-        login: '',
-        showPassword: false,
+        authPassword: '',
+        authLogin: '',
+        authShowPassword: false,
+        registerPassword: '',
+        registerLogin: '',
+        registerName: '',
+        registerShowPassword: false,
+        activeTab: 'authorization',
     });
     const handleChange = (prop) => (event) => {
         setValues({ ...values, [prop]: event.target.value });
     };
-    const handleClickShowPassword = () => {
-        setValues({ ...values, showPassword: !values.showPassword });
+    const handleClickShowPassword = (prop) => {
+        setValues({ ...values, [prop]: !values[prop] });
     };
+    const setActiveTab = (event, newTab) => {
+        event.preventDefault();
+        setValues({ ...values, activeTab: newTab});
+    }
     const handleMouseDownPassword = (event) => {
         event.preventDefault();
     };
     const handleClickAuthorization = () => {
-        const data = {login: values.login, password: values.password};
+        const data = {login: values.authLogin, password: values.authPassword};
         fetch('/login', {
             method: 'POST',
             body:  JSON.stringify(data),
@@ -51,7 +61,7 @@ function Authorization(props) {
         );
     }
     const handleClickRegistration = () => {
-        const data = {login: values.login, password: values.password};
+        const data = {login: values.registerLogin, password: values.registerPassword, name: values.registerName};
         fetch('/register', {
             method: 'POST',
             body:  JSON.stringify(data),
@@ -78,43 +88,92 @@ function Authorization(props) {
     document.title = "Авторизация";
     return(
         <div className="authorization-container">
-            <div className="authorization">
-                <Input
-                    className="authorization__input"
-                    placeholder="Введите логин"
-                    value={values.login}
-                    onChange={handleChange('login')}
-                />
-                <Input
-                    className="authorization__input"
-                    type={values.showPassword ? 'text' : 'password'}
-                    value={values.password}
-                    onChange={handleChange('password')}
-                    placeholder="Введите пароль"
-                    endAdornment={
-                        <InputAdornment position="end">
-                            <IconButton
-                                aria-label="toggle password visibility"
-                                onClick={handleClickShowPassword}
-                                onMouseDown={handleMouseDownPassword}
-                            >
-                                {values.showPassword ? <Visibility /> : <VisibilityOff />}
-                            </IconButton>
-                        </InputAdornment>
-                    }
-                />
-                <div className="authorization__button-container">
-                    <ButtonGroup color="primary" aria-label="outlined primary button group">
-                        <Button
-                            onClick={handleClickRegistration}
-                        >Зарегистрироваться</Button>
-                        <Button
-                            onClick={handleClickAuthorization}
-                        >Войти</Button>
-                    </ButtonGroup>
+            <div className="authorization-modal">
+                <div className={classNames("authorization", values.activeTab === "authorization" && "authorization_active")}>
+                    <Input
+                        className="authorization__input"
+                        placeholder="Введите логин"
+                        value={values.authLogin}
+                        onChange={handleChange('authLogin')}
+                    />
+                    <Input
+                        className="authorization__input"
+                        type={values.authShowPassword ? 'text' : 'password'}
+                        value={values.authPassword}
+                        onChange={handleChange('authPassword')}
+                        placeholder="Введите пароль"
+                        endAdornment={
+                            <InputAdornment position="end">
+                                <IconButton
+                                    aria-label="toggle password visibility"
+                                    onClick={() => handleClickShowPassword('authShowPassword')}
+                                    onMouseDown={handleMouseDownPassword}
+                                >
+                                    {values.authShowPassword ? <Visibility /> : <VisibilityOff />}
+                                </IconButton>
+                            </InputAdornment>
+                        }
+                    />
+                    <Button
+                        color="primary"
+                        variant="outlined"
+                        className="authorization__button"
+                        onClick={handleClickAuthorization}
+                    >Войти</Button>
+                    <Link
+                        href="#"
+                        onClick={(event) => setActiveTab(event, "registration")}
+                        className="authorization__link"
+                        variant="body1"
+                    >Регистрация</Link>
+                </div>
+                <div className={classNames("registration", values.activeTab === "registration" && "registration_active")}>
+                    <Input
+                        className="authorization__input"
+                        placeholder="Введите логин"
+                        value={values.registerLogin}
+                        onChange={handleChange('registerLogin')}
+                    />
+                    <Input
+                        className="authorization__input"
+                        placeholder="Введите Имя"
+                        value={values.registerName}
+                        onChange={handleChange('registerName')}
+                    />
+                    <Input
+                        className="authorization__input"
+                        type={values.registerShowPassword ? 'text' : 'password'}
+                        value={values.registerPassword}
+                        onChange={handleChange('registerPassword')}
+                        placeholder="Введите пароль"
+                        endAdornment={
+                            <InputAdornment position="end">
+                                <IconButton
+                                    aria-label="toggle password visibility"
+                                    onClick={() => handleClickShowPassword('registerShowPassword')}
+                                    onMouseDown={handleMouseDownPassword}
+                                >
+                                    {values.registerShowPassword ? <Visibility /> : <VisibilityOff />}
+                                </IconButton>
+                            </InputAdornment>
+                        }
+                    />
+                    <Button
+                        color="primary"
+                        variant="outlined"
+                        onClick={handleClickRegistration}
+                        className="authorization__button"
+                    >Зарегистрироваться</Button>
+                    <Link
+                        href="#"
+                        onClick={(event) => setActiveTab(event, "authorization")}
+                        className="authorization__link"
+                        variant="body1"
+                    >Вход</Link>
                 </div>
             </div>
         </div>
+
     );
 }
 export default Authorization;

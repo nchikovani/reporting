@@ -70,7 +70,7 @@ app.post('/login', function(req, res){
     })(req, res);
 });
 app.post('/register', function(req, res){
-    const {login, password} = req.body;
+    const {login, password, name} = req.body;
     if(!login) {
         return res.json({message: 'login is required' });
     }
@@ -85,6 +85,7 @@ app.post('/register', function(req, res){
                 const newUser = new Users({
                     login: login,
                     role: 'user',
+                    name: name,
                 });
                 newUser.setPassword(password);
                 newUser.save()
