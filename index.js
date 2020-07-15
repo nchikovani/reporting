@@ -22,6 +22,25 @@ require('./config/passport');
 // const userAdmin = new Users({login: 'admin', role: 'admin'});
 // userAdmin.setPassword('admin');
 // userAdmin.save();
+
+app.get("/userinfo", function(req, res){
+    passport.authenticate('jwt', {session: false},
+    (err, user) => {
+        if (user) {
+            return res.json({role: user.role, login: user.login});
+        } else {
+            return res.status(403).json({});
+        }
+    })(req, res);
+});
+app.get("/getUsers", function(req, res){
+    passport.authenticate('jwt', {session: false},
+    (err, user) => {
+        if (user.role === "admin") {
+            return res.json({login: user.login});
+        }
+    })(req, res);
+});
 app.get("*", (req, res) => {
     res.sendFile(path.join(__dirname, "build", "index.html"));
 });

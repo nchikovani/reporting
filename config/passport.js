@@ -24,7 +24,7 @@ passport.use('login', new LocalStrategy({
     }
 ));
 
-passport.use(new JwtStrategy({
+passport.use('jwt', new JwtStrategy({
         jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
         secretOrKey   : 'secret'
     },

@@ -3,17 +3,15 @@ import './style.scss';
 import {Button, Input, InputAdornment, IconButton, ButtonGroup} from '@material-ui/core';
 import Visibility from '@material-ui/icons/Visibility';
 import VisibilityOff from '@material-ui/icons/VisibilityOff';
-import {useHistory} from "react-router-dom";
 import {addToken} from "../../actions";
 import store from '../../store';
 
-function Authorization() {
+function Authorization(props) {
     const [values, setValues] = React.useState({
         password: '',
         login: '',
         showPassword: false,
     });
-    const history = useHistory();
     const handleChange = (prop) => (event) => {
         setValues({ ...values, [prop]: event.target.value });
     };
@@ -37,11 +35,13 @@ function Authorization() {
                     if(body.message) {
                         alert(body.message);
                     } else if (body.role === 'admin'){
-                        history.push('/admin');
-                        store.dispatch(addToken(body.token));
+                        // store.dispatch(addToken(body.token));
+                        localStorage.setItem("token", body.token);
+                        props.setPath('/admin');
                     } else if (body.role === 'user') {
-                        history.push('/user/' + body.login);
-                        store.dispatch(addToken(body.token));
+                        // store.dispatch(addToken(body.token));
+                        localStorage.setItem("token", body.token);
+                        props.setPath('/user/' + body.login);
                     }
                 });
             },
@@ -64,8 +64,9 @@ function Authorization() {
                     if(body.message) {
                         alert(body.message);
                     } else {
-                        history.push('/user/' + body.login);
-                        store.dispatch(addToken(body.token));
+                        // store.dispatch(addToken(body.token));
+                        localStorage.setItem("token", body.token);
+                        props.setPath('/user/' + body.login);
                     }
                 });
             },

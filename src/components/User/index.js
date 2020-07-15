@@ -2,13 +2,17 @@ import React from 'react';
 import './style.scss';
 import {AppBar, Button, List, ListItem, ListItemText, Toolbar} from "@material-ui/core";
 
-function User() {
+function User(props) {
     document.title = "Личный кабинет";
+    function handleLogOut() {
+        localStorage.removeItem("token");
+        props.setPath('/');
+    }
     return(
         <React.Fragment>
             <AppBar position="static">
                 <Toolbar className="user__toolbar" >
-                    <Button color="inherit">Выход</Button>
+                    <Button onClick={handleLogOut} color="inherit">Выход</Button>
                 </Toolbar>
             </AppBar>
             <List aria-label="secondary mailbox folders">
