@@ -11,11 +11,13 @@ function User(props) {
     return(
         <React.Fragment>
             <AppBar position="static">
-                <Toolbar className="user__toolbar" >
-                    <Button onClick={handleLogOut} color="inherit">Выход</Button>
-                </Toolbar>
+                <div>
+                    <Toolbar className="user__toolbar wrapper" >
+                        <Button onClick={handleLogOut} color="inherit">Выход</Button>
+                    </Toolbar>
+                </div>
             </AppBar>
-            <List aria-label="secondary mailbox folders">
+            <List className="wrapper" aria-label="secondary mailbox folders">
                 <ListItem button>
                     <ListItemText primary="Задача1" />
                 </ListItem>

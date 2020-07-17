@@ -3,6 +3,9 @@ import {Button, Toolbar, AppBar, Tabs, Tab} from '@material-ui/core';
 import TabPanel from '../generic/TabPanel';
 import UserList from './UserList';
 import TaskList from './TaskList';
+import store from "../../store";
+import {openModal} from "../../actions";
+import TaskCreate from './TaskCreate';
 import './style.scss';
 
 class Admin extends React.PureComponent {
@@ -17,11 +20,12 @@ class Admin extends React.PureComponent {
         this.handleChangeTab = this.handleChangeTab.bind(this);
         this.handleLogOut = this.handleLogOut.bind(this);
         this.setUsers = this.setUsers.bind(this);
+        this.setTasks = this.setTasks.bind(this);
     }
     handleChangeTab(event, newValue) {
         this.setState({
             tabActive: newValue
-        })
+        });
     };
     handleLogOut() {
         localStorage.removeItem("token");
@@ -30,6 +34,11 @@ class Admin extends React.PureComponent {
     setUsers(users) {
         this.setState ({
             users: users,
+        });
+    }
+    setTasks(tasks) {
+        this.setState ({
+            tasks: tasks,
         });
     }
     componentDidMount() {
@@ -50,33 +59,59 @@ class Admin extends React.PureComponent {
             .catch(err => {
                 alert(err);
             });
+        fetch('/admin/getTasks', {
+            method: "GET",
+            headers: {
+                "Authorization": `Bearer ${localStorage.token}`
+            }})
+            .then(res => {
+                res.json().then(body => {
+                    if (body.message) {
+                        alert(body.message);
+                    } else if (body.tasks) {
+                        this.setTasks(body.tasks.reverse());
+                    }
+                });
+            })
+            .catch(err => {
+                alert(err);
+            });
     }
     render() {
         const tabActive =  this.state.tabActive;
         return(
             <React.Fragment>
                 <AppBar position="static">
-                    <Toolbar className="admin__toolbar">
-                        <Tabs value={tabActive} onChange={this.handleChangeTab} aria-label="simple tabs example">
-                            <Tab label="Пользователи" id="simple-tab-0"/>
-                            <Tab label="Задачи" id="simple-tab-1"/>
-                        </Tabs>
-                        <Button onClick={this.handleLogOut} color="inherit">Выход</Button>
-                    </Toolbar>
+                    <div>
+                        <Toolbar className="admin__toolbar wrapper">
+                            <Tabs value={tabActive} onChange={this.handleChangeTab} aria-label="simple tabs example">
+                                <Tab label="Пользователи" id="simple-tab-0"/>
+                                <Tab label="Задачи" id="simple-tab-1"/>
+                            </Tabs>
+                            <Button onClick={this.handleLogOut} color="inherit">Выход</Button>
+                        </Toolbar>
+                    </div>
                 </AppBar>
-                <TabPanel value={tabActive} index={0}>
+                <TabPanel className="wrapper" value={tabActive} index={0}>
                     <UserList
                         users={this.state.users}
                         setUsers={this.setUsers}
                     />
 
                 </TabPanel>
-                <TabPanel value={tabActive} index={1}>
+                <TabPanel className="wrapper" value={tabActive} index={1}>
                     <Button
                         color="primary"
                         variant="outlined"
+                        onClick={() => store.dispatch(openModal(<TaskCreate
+                            setTasks={this.setTasks}
+                            action="create"
+                        />))}
                     >Создать задачу</Button>
-                    <TaskList/>
+                    <TaskList
+                        tasks={this.state.tasks}
+                        setTasks={this.setTasks}
+                    />
                 </TabPanel>
             </React.Fragment>
         );

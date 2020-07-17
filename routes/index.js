@@ -9,7 +9,7 @@ router.get("/userinfo", function(req, res){
     passport.authenticate('jwt', {session: false},
         (err, user) => {
             if (err) {
-                res.json({message: err});
+                return res.json({message: err.name});
             }else if (user) {
                 return res.json({role: user.role, login: user.login});
             } else {
@@ -34,7 +34,7 @@ router.post('/login', function(req, res){
             // return res.json({ role: user.role, login: user.login});
             req.login(user, {session: false}, (err) => {
                 if (err) {
-                    res.send(err);
+                    return res.json({message: err.name});
                 }
                 const token = jwt.sign({id: user._id}, 'secret');
                 return res.json({role: user.role, login: user.login, token});
@@ -65,13 +65,13 @@ router.post('/register', function(req, res){
                     .then(user => {
                         req.login(user, {session: false}, (err) => {
                             if (err) {
-                                res.send(err);
+                                return res.json({message: err.name});
                             }
                             const token = jwt.sign({id: user._id}, 'secret');
                             return res.json({login: user.login, token});
                         });
                     }, error=> {
-                        res.json({message: error});
+                        res.json({message: error.name});
                     });
             }
         });

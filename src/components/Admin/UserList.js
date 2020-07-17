@@ -33,7 +33,7 @@ function UserList({users, setUsers}) {
     }
     function handleEditUser(event, user) {
         event.stopPropagation();
-        store.dispatch(openModal(<UserEdit user={user} setUsers={setUsers} action="edit"/>));
+        store.dispatch(openModal(<UserEdit user={user} setUsers={setUsers}/>));
     }
     return(
         <List aria-label="secondary mailbox folders">
@@ -42,7 +42,7 @@ function UserList({users, setUsers}) {
                 <ListItem
                     button
                     key={user.id}
-                    onClick={()=>store.dispatch(openModal(<UserRead user={user} action="read"/>))}
+                    onClick={()=>store.dispatch(openModal(<UserRead user={user}/>))}
                 >
                     <ListItemText primary={user.login} />
                     <IconButton edge="end"  title="Редактировать" onClick={(event)=>handleEditUser(event, user)}>

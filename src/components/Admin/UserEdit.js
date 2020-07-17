@@ -26,17 +26,19 @@ function UserEdit({user, setUsers}) {
                     } else if (body.users) {
                         setUsers(body.users.reverse());
                     }
+                    store.dispatch(closeModal());
                 });
             })
             .catch(err => {
                 alert(err);
+                store.dispatch(closeModal());
             });
-        store.dispatch(closeModal());
+
     }
     return (
         <div className="user-edit">
             <TextField
-                label="Name"
+                label="Имя"
                 value={values.name}
                 fullWidth
                 margin="normal"

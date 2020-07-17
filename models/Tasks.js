@@ -1,0 +1,14 @@
+const mongoose = require('mongoose');
+const TasksSchema = new mongoose.Schema({
+    created: {
+        type: Date,
+        default: Date.now,
+    },
+    title: String,
+    description: String,
+    type: String,
+    deadline: Date,
+});
+
+const Tasks = mongoose.model('Tasks', TasksSchema);
+module.exports = Tasks;

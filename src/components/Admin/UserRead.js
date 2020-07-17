@@ -1,13 +1,18 @@
 import React from 'react';
-import {Typography} from "@material-ui/core";
+import {Table, TableBody, TableCell, TableRow} from "@material-ui/core";
 import PropTypes from "prop-types";
 
 
 function UserRead({user}) {
     return (
-        <div>
-            <Typography variant="body1">Имя: {user.name}</Typography>
-        </div>
+        <Table aria-label="simple table">
+            <TableBody>
+                <TableRow>
+                    <TableCell component="th" scope="row">Имя:</TableCell>
+                    <TableCell>{user.name}</TableCell>
+                </TableRow>
+            </TableBody>
+        </Table>
     );
 }
 UserRead.propTypes = {

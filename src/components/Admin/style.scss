@@ -3,8 +3,12 @@
   display: flex;
   justify-content: space-between;
 }
-.user-edit .user-edit__button-save {
+.user-edit .user-edit__button-save,
+.task-create .task-create__button-save{
   margin-left: auto;
   margin-top: 0.4em;
   display: block;
+}
+.task-create__text-area {
+  height: 20em;
 }
