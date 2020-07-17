@@ -1,20 +1,22 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-import {IconButton, Button, Toolbar, AppBar, Tabs, Tab, Box, List, ListItem, ListItemText} from '@material-ui/core';
-import DeleteIcon from '@material-ui/icons/Delete';
-import EditIcon from '@material-ui/icons/Edit';
-import {connect} from 'react-redux';
+import {Button, Toolbar, AppBar, Tabs, Tab} from '@material-ui/core';
+import TabPanel from '../generic/TabPanel';
+import UserList from './UserList';
+import TaskList from './TaskList';
 import './style.scss';
 
-class Admin extends React.Component {
+class Admin extends React.PureComponent {
     constructor(props) {
         super(props);
         document.title = "Личный кабинет";
         this.state = {
             tabActive: 0,
+            users: [],
+            tasks: [],
         }
         this.handleChangeTab = this.handleChangeTab.bind(this);
         this.handleLogOut = this.handleLogOut.bind(this);
+        this.setUsers = this.setUsers.bind(this);
     }
     handleChangeTab(event, newValue) {
         this.setState({
@@ -25,24 +27,28 @@ class Admin extends React.Component {
         localStorage.removeItem("token");
         this.props.setPath('/');
     }
+    setUsers(users) {
+        this.setState ({
+            users: users,
+        });
+    }
     componentDidMount() {
-        fetch('/getUsers', {
+        fetch('/admin/getUsers', {
             method: "GET",
             headers: {
                 "Authorization": `Bearer ${localStorage.token}`
             }})
             .then(res => {
-                if (res.status === 200) {
-                    res.json().then(body => {
-                       console.log(body.login)
-                    });
-                } else {
-                    const error = new Error(res.error);
-                    throw error;
-                }
+                res.json().then(body => {
+                    if (body.message) {
+                        alert(body.message);
+                    } else if (body.users) {
+                        this.setUsers(body.users.reverse());
+                    }
+                });
             })
             .catch(err => {
-                console.error(err);
+                alert(err);
             });
     }
     render() {
@@ -59,86 +65,22 @@ class Admin extends React.Component {
                     </Toolbar>
                 </AppBar>
                 <TabPanel value={tabActive} index={0}>
-                    <List aria-label="secondary mailbox folders">
-                        <ListItem button>
-                            <ListItemText primary="user1" />
-                            <IconButton edge="end" aria-label="delete">
-                                <EditIcon />
-                            </IconButton>
-                            <IconButton edge="end" aria-label="delete">
-                                <DeleteIcon />
-                            </IconButton>
-                        </ListItem>
-                        <ListItem button>
-                            <ListItemText primary="user2" />
-                            <IconButton edge="end" aria-label="delete">
-                                <EditIcon />
-                            </IconButton>
-                            <IconButton edge="end" aria-label="delete">
-                                <DeleteIcon />
-                            </IconButton>
-                        </ListItem>
-                    </List>
+                    <UserList
+                        users={this.state.users}
+                        setUsers={this.setUsers}
+                    />
+
                 </TabPanel>
                 <TabPanel value={tabActive} index={1}>
                     <Button
                         color="primary"
                         variant="outlined"
                     >Создать задачу</Button>
-                    <List aria-label="secondary mailbox folders">
-                        <ListItem button>
-                            <ListItemText primary="Задача1" />
-                            <IconButton edge="end" aria-label="delete">
-                                <EditIcon />
-                            </IconButton>
-                            <IconButton edge="end" aria-label="delete">
-                                <DeleteIcon />
-                            </IconButton>
-                        </ListItem>
-                        <ListItem button>
-                            <ListItemText primary="Задача2" />
-                            <IconButton edge="end" aria-label="delete">
-                                <EditIcon />
-                            </IconButton>
-                            <IconButton edge="end" aria-label="delete">
-                                <DeleteIcon />
-                            </IconButton>
-                        </ListItem>
-                    </List>
+                    <TaskList/>
                 </TabPanel>
             </React.Fragment>
         );
     }
 }
 
-function TabPanel(props) {
-    const { children, value, index, ...other } = props;
-
-    return (
-        <div
-            role="tabpanel"
-            hidden={value !== index}
-            id={`simple-tabpanel-${index}`}
-            aria-labelledby={`simple-tab-${index}`}
-            {...other}
-        >
-            {value === index && (
-                <Box p={3}>
-                    {children}
-                </Box>
-            )}
-        </div>
-    );
-}
-
-TabPanel.propTypes = {
-    children: PropTypes.node,
-    index: PropTypes.any.isRequired,
-    value: PropTypes.any.isRequired,
-};
-// const mapStateToProps = (store) => {
-//     return {
-//         token: store.token,
-//     }
-// }
 export default Admin;

@@ -4,8 +4,6 @@ import {Button, Input, InputAdornment, IconButton, Link} from '@material-ui/core
 import Visibility from '@material-ui/icons/Visibility';
 import VisibilityOff from '@material-ui/icons/VisibilityOff';
 import classNames from 'classnames';
-import {addToken} from "../../actions";
-import store from '../../store';
 
 function Authorization(props) {
     const [values, setValues] = React.useState({
