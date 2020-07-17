@@ -3,6 +3,7 @@ const express = require("express");
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const adminRouter = require('./routes/admin');
+const userRouter = require('./routes/user');
 const indexRouter = require('./routes');
 const app = express();
 
@@ -22,6 +23,7 @@ require('./config/passport');
 // userAdmin.setPassword('admin');
 // userAdmin.save();
 app.use('/admin', adminRouter);
+app.use('/user', userRouter);
 app.use('/', indexRouter);
 
 app.get("*", (req, res) => {

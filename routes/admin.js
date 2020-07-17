@@ -112,7 +112,18 @@ router.post('/createTask', function(req, res){
                     deadline,
                 });
                 newTask.save()
-                    .then(() => {
+                    .then((task) => {
+                        Users.find().then(users => {
+                            users.forEach(user => {
+                                if (user.role === 'admin') return;
+                                const newIssuedTasks = new IssuedTasks({
+                                    taskId: task._id,
+                                    userId: user._id,
+                                    status: "new",
+                                });
+                                newIssuedTasks.save()
+                            })
+                        });
                         Tasks.find().then(tasks => {
                             return res.json({tasks: tasks.map((task) => {
                                     return {
@@ -175,18 +186,21 @@ router.delete('/deleteTask', function(req, res){
                     if (err) {
                         res.json({message: err.name});
                     }else {
-                        Tasks.find().then(tasks => {
-                            return res.json({tasks: tasks.map((task) => {
-                                    return {
-                                        id: task._id,
-                                        title: task.title,
-                                        description: task.description,
-                                        type: task.type,
-                                        created: task.created,
-                                        deadline: task.deadline,
-                                    }})
+                        IssuedTasks.deleteMany({taskId: id}).then(() => {
+                            Tasks.find().then(tasks => {
+                                return res.json({tasks: tasks.map((task) => {
+                                        return {
+                                            id: task._id,
+                                            title: task.title,
+                                            description: task.description,
+                                            type: task.type,
+                                            created: task.created,
+                                            deadline: task.deadline,
+                                        }})
+                                });
                             });
                         });
+
                     }
                 });
             } else {

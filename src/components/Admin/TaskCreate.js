@@ -1,6 +1,6 @@
 import React from 'react';
 import 'date-fns';
-import {TextField, Button, InputLabel, Select, FormControl} from "@material-ui/core";
+import {TextField, Button, InputLabel, Select, FormControl, TableCell} from "@material-ui/core";
 import {MuiPickersUtilsProvider, KeyboardDatePicker} from "@material-ui/pickers";
 import DateFnsUtils from '@date-io/date-fns';
 import PropTypes from "prop-types";
@@ -131,7 +131,7 @@ function TaskCreate({task, setTasks, action}) {
                     margin="normal"
                     inputVariant="outlined"
                     format="dd/MM/yyyy"
-                    label="Дата выполнения"
+                    label="Крайний срок"
                     value={values.deadline}
                     onChange={(date) => setValues({...values, 'deadline': date})}
                     InputAdornmentProps={{ position: "start" }}

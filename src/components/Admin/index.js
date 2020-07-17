@@ -7,6 +7,7 @@ import store from "../../store";
 import {openModal} from "../../actions";
 import TaskCreate from './TaskCreate';
 import './style.scss';
+import PropTypes from "prop-types";
 
 class Admin extends React.PureComponent {
     constructor(props) {
@@ -97,7 +98,6 @@ class Admin extends React.PureComponent {
                         users={this.state.users}
                         setUsers={this.setUsers}
                     />
-
                 </TabPanel>
                 <TabPanel className="wrapper" value={tabActive} index={1}>
                     <Button
@@ -117,5 +117,7 @@ class Admin extends React.PureComponent {
         );
     }
 }
-
+Admin.propTypes = {
+    setPath: PropTypes.func,
+};
 export default Admin;

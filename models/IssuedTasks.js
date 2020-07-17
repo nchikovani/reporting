@@ -1,7 +1,13 @@
 const mongoose = require('mongoose');
 const IssuedTasksSchema = new mongoose.Schema({
-    userId: mongoose.Schema.ObjectId,
-    taskId: mongoose.Schema.ObjectId,
+    userId: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'Users'
+    },
+    taskId: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'Tasks'
+    },
     created: {
         type: Date,
         default: Date.now,
