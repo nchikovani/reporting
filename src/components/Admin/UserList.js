@@ -42,6 +42,7 @@ function UserList({users, setUsers}) {
                 <ListItem
                     button
                     key={user.id}
+                    className="lk__list-item"
                     onClick={()=>store.dispatch(openModal(<UserRead user={user}/>))}
                 >
                     <ListItemText primary={user.login} />

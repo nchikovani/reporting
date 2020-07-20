@@ -61,14 +61,16 @@ router.delete('/deleteUser', function(req, res){
                     if (err) {
                         res.json({message: err.name});
                     }else {
-                        Users.find().then(users => {
-                            const resUsers = [];
-                            users.forEach(user => {
-                                if(user.role!=="admin") {
-                                    resUsers.push({id: user._id, login: user.login, name: user.name});
-                                }
+                        IssuedTasks.deleteMany({userId: id}).then(() => {
+                            Users.find().then(users => {
+                                const resUsers = [];
+                                users.forEach(user => {
+                                    if(user.role!=="admin") {
+                                        resUsers.push({id: user._id, login: user.login, name: user.name});
+                                    }
+                                });
+                                return res.json({users: resUsers});
                             });
-                            return res.json({users: resUsers});
                         });
                     }
                 });
@@ -83,7 +85,7 @@ router.get("/getTasks", function(req, res){
             if (err) {
                 res.json({message: err.name});
             }else if (user.role === "admin") {
-                Tasks.find().then(tasks => {
+                Tasks.find().populate('usersCount').populate('closedUsersCount').then(tasks => {
                     return res.json({tasks: tasks.map((task) => {
                             return {
                                 id: task._id,
@@ -92,6 +94,8 @@ router.get("/getTasks", function(req, res){
                                 type: task.type,
                                 created: task.created,
                                 deadline: task.deadline,
+                                closedTasks: task.closedUsersCount,
+                                issuedTasks: task.usersCount,
                             }})
                     });
                 });
@@ -124,7 +128,7 @@ router.post('/createTask', function(req, res){
                                 newIssuedTasks.save()
                             })
                         });
-                        Tasks.find().then(tasks => {
+                        Tasks.find().populate('usersCount').populate('closedUsersCount').then(tasks => {
                             return res.json({tasks: tasks.map((task) => {
                                     return {
                                         id: task._id,
@@ -133,6 +137,8 @@ router.post('/createTask', function(req, res){
                                         type: task.type,
                                         created: task.created,
                                         deadline: task.deadline,
+                                        closedTasks: task.closedUsersCount,
+                                        issuedTasks: task.usersCount,
                                     }})
                             });
                         });
@@ -146,7 +152,6 @@ router.post('/createTask', function(req, res){
 });
 router.post('/editTask', function(req, res){
     const {id, title, description, type, deadline} = req.body;
-
     passport.authenticate('jwt', {session: false},
         (err, user) => {
             if (err) {
@@ -156,16 +161,18 @@ router.post('/editTask', function(req, res){
                     if (err) {
                         res.json({message: err.name});
                     }else {
-                        Tasks.find().then(tasks => {
+                        Tasks.find().populate('usersCount').populate('closedUsersCount').then(tasks => {
                             return res.json({tasks: tasks.map((task) => {
-                                return {
-                                    id: task._id,
-                                    title: task.title,
-                                    description: task.description,
-                                    type: task.type,
-                                    created: task.created,
-                                    deadline: task.deadline,
-                                }})
+                                    return {
+                                        id: task._id,
+                                        title: task.title,
+                                        description: task.description,
+                                        type: task.type,
+                                        created: task.created,
+                                        deadline: task.deadline,
+                                        closedTasks: task.closedUsersCount,
+                                        issuedTasks: task.usersCount,
+                                    }})
                             });
                         });
                     }
@@ -175,6 +182,7 @@ router.post('/editTask', function(req, res){
             }
         })(req, res);
 });
+
 router.delete('/deleteTask', function(req, res){
     const {id} = req.body;
     passport.authenticate('jwt', {session: false},
@@ -187,7 +195,7 @@ router.delete('/deleteTask', function(req, res){
                         res.json({message: err.name});
                     }else {
                         IssuedTasks.deleteMany({taskId: id}).then(() => {
-                            Tasks.find().then(tasks => {
+                            Tasks.find().populate('usersCount').populate('closedUsersCount').then(tasks => {
                                 return res.json({tasks: tasks.map((task) => {
                                         return {
                                             id: task._id,
@@ -196,6 +204,8 @@ router.delete('/deleteTask', function(req, res){
                                             type: task.type,
                                             created: task.created,
                                             deadline: task.deadline,
+                                            closedTasks: task.closedUsersCount,
+                                            issuedTasks: task.usersCount,
                                         }})
                                 });
                             });
@@ -205,6 +215,54 @@ router.delete('/deleteTask', function(req, res){
                 });
             } else {
                 return res.status(403).send();
+            }
+        })(req, res);
+});
+router.post("/getTaskUsers", function(req, res){
+    const {id} = req.body;
+    passport.authenticate('jwt', {session: false},
+        (err, user) => {
+            if (err) {
+                res.json({message: err.name});
+            }else if (user.role === "admin") {
+                IssuedTasks.find({taskId: id}).populate('userId').then(tasks => {
+                    return res.json({tasks: tasks.map((task) => {
+                            return {
+                                id: task._id,
+                                name: task.userId.name,
+                                status: task.status,
+                                result: task.result,
+                                closedDate: task.closedDate,
+                            }})
+                    });
+                });
+            }
+        })(req, res);
+});
+router.post("/openTask", function(req, res){
+    const {id, taskId} = req.body;
+    passport.authenticate('jwt', {session: false},
+        (err, user) => {
+            if (err) {
+                res.json({message: err.name});
+            }else if (user.role === "admin") {
+                IssuedTasks.findByIdAndUpdate(id, {status: "open"}, function (err) {
+                    if (err) {
+                        res.json({message: err.name});
+                    }else {
+                        IssuedTasks.find({taskId: taskId}).populate('userId').then(tasks => {
+                            return res.json({tasks: tasks.map((task) => {
+                                    return {
+                                        id: task._id,
+                                        name: task.userId.name,
+                                        status: task.status,
+                                        result: task.result,
+                                        closedDate: task.closedDate,
+                                    }})
+                            });
+                        });
+                    }
+                });
             }
         })(req, res);
 });

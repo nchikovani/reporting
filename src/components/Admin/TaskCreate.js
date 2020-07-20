@@ -97,7 +97,7 @@ function TaskCreate({task, setTasks, action}) {
                 variant="outlined"
             />
             <TextField
-                label="Описани"
+                label="Описание"
                 value={values.description}
                 fullWidth
                 rows={5}

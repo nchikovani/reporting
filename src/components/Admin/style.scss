@@ -4,11 +4,26 @@
   justify-content: space-between;
 }
 .user-edit .user-edit__button-save,
-.task-create .task-create__button-save{
+.task-create .task-create__button-save,
+.task-read .task-read__button-open{
   margin-left: auto;
   margin-top: 0.4em;
   display: block;
 }
 .task-create__text-area {
   height: 20em;
+}
+.task-read__user-list {
+  max-height: 20em;
+  overflow-y: scroll;
+  margin-top: 1em;
+}
+.task-read__user-item {
+  margin-bottom: 0.6em;
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+.task-read__card-content {
+  padding: 1em !important;
 }

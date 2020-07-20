@@ -41,10 +41,11 @@ function TaskList({tasks, setTasks}) {
                 tasks.map(task =>
                 <ListItem
                     button
+                    className="lk__list-item"
                     key={task.id}
                     onClick={()=>store.dispatch(openModal(<TaskRead task={task}/>))}
                 >
-                    <ListItemText  primary={task.title} />
+                    <ListItemText  primary={`${task.title} (${task.closedTasks}/${task.issuedTasks})`}/>
                     <IconButton title="Редактировать" edge="end" onClick={(event)=>handleEditTask(event, task)}>
                         <EditIcon />
                     </IconButton>
