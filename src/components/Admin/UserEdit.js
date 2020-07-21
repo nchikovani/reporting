@@ -6,7 +6,11 @@ import {closeModal} from "../../actions";
 
 function UserEdit({user, setUsers}) {
     const [values, setValues] = React.useState({
-        name: user.name,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        patronymic: user.patronymic,
+        position: user.position,
+        team: user.team,
     });
     const handleChange = (prop) => (event) => {
         setValues({ ...values, [prop]: event.target.value });
@@ -14,7 +18,14 @@ function UserEdit({user, setUsers}) {
     const submit = () => {
         fetch('/admin/editUser',{
             method: "POST",
-            body:  JSON.stringify({id: user.id, name: values.name}),
+            body:  JSON.stringify({
+                id: user.id,
+                firstName: values.firstName,
+                lastName: values.lastName,
+                patronymic: values.patronymic,
+                position: values.position,
+                team: values.team,
+            }),
             headers: {
                 'Content-Type': 'application/json',
                 "Authorization": `Bearer ${localStorage.token}`
@@ -39,10 +50,42 @@ function UserEdit({user, setUsers}) {
         <div className="user-edit">
             <TextField
                 label="Имя"
-                value={values.name}
+                value={values.firstName}
                 fullWidth
                 margin="normal"
-                onChange={handleChange('name')}
+                onChange={handleChange('firstName')}
+                variant="outlined"
+            />
+            <TextField
+                label="Фамилия"
+                value={values.lastName}
+                fullWidth
+                margin="normal"
+                onChange={handleChange('lastName')}
+                variant="outlined"
+            />
+            <TextField
+                label="Отчество"
+                value={values.patronymic}
+                fullWidth
+                margin="normal"
+                onChange={handleChange('patronymic')}
+                variant="outlined"
+            />
+            <TextField
+                label="Должность"
+                value={values.position}
+                fullWidth
+                margin="normal"
+                onChange={handleChange('position')}
+                variant="outlined"
+            />
+            <TextField
+                label="Команда"
+                value={values.team}
+                fullWidth
+                margin="normal"
+                onChange={handleChange('team')}
                 variant="outlined"
             />
             <Button

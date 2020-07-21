@@ -85,7 +85,10 @@ class TaskRead extends React.Component {
                         </TableRow>
                         <TableRow>
                             <TableCell component="th" scope="row">Тип:</TableCell>
-                            <TableCell>{task.type}</TableCell>
+                            <TableCell>
+                                {task.type === "familiarize" && "Ознакомиться"}
+                                {task.type === "opdCard" && "Карта ОПД"}
+                            </TableCell>
                         </TableRow>
                         <TableRow>
                             <TableCell component="th" scope="row">Дата создания:</TableCell>
@@ -95,6 +98,19 @@ class TaskRead extends React.Component {
                             <TableCell component="th" scope="row">Крайний срок:</TableCell>
                             <TableCell>{this.formatDate(task.deadline)}</TableCell>
                         </TableRow>
+                        {
+                            task.type === "opdCard" &&
+                            <React.Fragment>
+                                <TableRow>
+                                    <TableCell component="th" scope="row">С:</TableCell>
+                                    <TableCell>{this.formatDate(task.additionally.validFrom)}</TableCell>
+                                </TableRow>
+                                <TableRow>
+                                    <TableCell component="th" scope="row">По:</TableCell>
+                                    <TableCell>{this.formatDate(task.additionally.validUntil)}</TableCell>
+                                </TableRow>
+                            </React.Fragment>
+                        }
                     </TableBody>
                 </Table>
                 <div className="task-read__user-list">
@@ -108,7 +124,7 @@ class TaskRead extends React.Component {
                                 <Card variant="outlined">
                                     <CardContent className="task-read__card-content">
                                         <Typography variant="body1">
-                                            {`${user.name} (${user.status === 'closed' ? 'Закрыто' : 'Открыто'})`}
+                                            {`${user.lastName} ${user.firstName} (${user.status === 'closed' ? 'Закрыто' : 'Открыто'})`}
                                         </Typography>
                                         <Typography variant="body1">
                                             {this.formatDate(user.closedDate)}

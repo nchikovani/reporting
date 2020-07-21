@@ -6,9 +6,10 @@ const adminRouter = require('./routes/admin');
 const userRouter = require('./routes/user');
 const indexRouter = require('./routes');
 const app = express();
+// const Users = require('./models/Users');
 
 app.use(express.static(path.join(__dirname, 'build')));
-app.use(bodyParser.json());
+app.use(bodyParser.json({limit: '10mb', extended: true}));
 
 const uri = "mongodb+srv://admin:admin@cluster0.vr7at.mongodb.net/reporting?retryWrites=true&w=majority";
 mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true}, function(err){

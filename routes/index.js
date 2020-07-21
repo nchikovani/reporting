@@ -1,5 +1,5 @@
 const passport = require('passport');
-const path = require("path");
+const fs = require('fs');
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const router = express.Router();
@@ -43,7 +43,16 @@ router.post('/login', function(req, res){
     })(req, res);
 });
 router.post('/register', function(req, res){
-    const {login, password, name} = req.body;
+    const {
+        login,
+        password,
+        firstName,
+        lastName,
+        patronymic,
+        position,
+        team,
+        signature,
+    } = req.body;
     if(!login) {
         return res.json({message: 'login is required' });
     }
@@ -56,9 +65,15 @@ router.post('/register', function(req, res){
                 return res.json({message: 'User is already registered'});
             } else {
                 const newUser = new Users({
-                    login: login,
                     role: 'user',
-                    name: name,
+                    login,
+                    password,
+                    firstName,
+                    lastName,
+                    patronymic,
+                    position,
+                    team,
+                    signature: signature,
                 });
                 newUser.setPassword(password);
                 newUser.save()

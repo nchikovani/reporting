@@ -3,12 +3,14 @@ import {Table, TableCell, TableRow, TableBody, TextField, Button} from "@materia
 import PropTypes from "prop-types";
 import store from "../../store";
 import {closeModal} from "../../actions";
+import { Document, Page, Text, View, StyleSheet, PDFDownloadLink} from '@react-pdf/renderer';
 
 function TaskRead({task, setTasks}) {
     const [state, setState] = React.useState({"result": task.result});
     const handleChange = (event) => {
         setState({ result: event.target.value});
     };
+    console.log(task);
     function formatDate(date) {
         if (!date) return;
         const newDate = new Date(date);
@@ -54,7 +56,10 @@ function TaskRead({task, setTasks}) {
                     </TableRow>
                     <TableRow>
                         <TableCell component="th" scope="row">Тип:</TableCell>
-                        <TableCell>{task.type}</TableCell>
+                        <TableCell>
+                            {task.type === "familiarize" && "Ознакомиться"}
+                            {task.type === "opdCard" && "Карта ОПД"}
+                        </TableCell>
                     </TableRow>
                     <TableRow>
                         <TableCell component="th" scope="row">Дата выдачи задания:</TableCell>
@@ -64,6 +69,19 @@ function TaskRead({task, setTasks}) {
                         <TableCell component="th" scope="row">Крайний срок:</TableCell>
                         <TableCell>{formatDate(task.deadline)}</TableCell>
                     </TableRow>
+                    {
+                        task.type === "opdCard" && task.additionally &&
+                        <React.Fragment>
+                            <TableRow>
+                                <TableCell component="th" scope="row">С:</TableCell>
+                                <TableCell>{formatDate(task.additionally.validFrom)}</TableCell>
+                            </TableRow>
+                            <TableRow>
+                                <TableCell component="th" scope="row">По:</TableCell>
+                                <TableCell>{formatDate(task.additionally.validUntil)}</TableCell>
+                            </TableRow>
+                        </React.Fragment>
+                    }
                     {
                         task.status === "closed" &&
                         <TableRow>
@@ -101,4 +119,5 @@ TaskRead.propTypes = {
     task: PropTypes.object,
     setTasks: PropTypes.func,
 };
+
 export default TaskRead;

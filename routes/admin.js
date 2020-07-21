@@ -15,7 +15,15 @@ router.get("/getUsers", function(req, res){
                     const resUsers = [];
                     users.forEach(user => {
                         if(user.role!=="admin") {
-                            resUsers.push({id: user._id, login: user.login, name: user.name});
+                            resUsers.push({
+                                id: user._id,
+                                login: user.login,
+                                firstName: user.firstName,
+                                lastName: user.lastName,
+                                patronymic: user.patronymic,
+                                position: user.position,
+                                team: user.team,
+                            });
                         }
                     });
                     return res.json({users: resUsers});
@@ -24,13 +32,19 @@ router.get("/getUsers", function(req, res){
         })(req, res);
 });
 router.post('/editUser', function(req, res){
-    const {id, name} = req.body;
+    const {id} = req.body;
     passport.authenticate('jwt', {session: false},
         (err, user) => {
             if (err) {
                 res.json({message: err.name});
             }else if (user.role === 'admin') {
-                Users.findByIdAndUpdate(id, {name: name}, function (err) {
+                Users.findByIdAndUpdate(id, {
+                    firstName: req.body.firstName,
+                    lastName: req.body.lastName,
+                    patronymic: req.body.patronymic,
+                    position: req.body.position,
+                    team: req.body.team,
+                }, function (err) {
                     if (err) {
                         res.json({message: err.name});
                     }else {
@@ -38,7 +52,15 @@ router.post('/editUser', function(req, res){
                             const resUsers = [];
                             users.forEach(user => {
                                 if(user.role!=="admin") {
-                                    resUsers.push({id: user._id, login: user.login, name: user.name});
+                                    resUsers.push({
+                                        id: user._id,
+                                        login: user.login,
+                                        firstName: user.firstName,
+                                        lastName: user.lastName,
+                                        patronymic: user.patronymic,
+                                        position: user.position,
+                                        team: user.team,
+                                    });
                                 }
                             });
                             return res.json({users: resUsers});
@@ -66,7 +88,15 @@ router.delete('/deleteUser', function(req, res){
                                 const resUsers = [];
                                 users.forEach(user => {
                                     if(user.role!=="admin") {
-                                        resUsers.push({id: user._id, login: user.login, name: user.name});
+                                        resUsers.push({
+                                            id: user._id,
+                                            login: user.login,
+                                            firstName: user.firstName,
+                                            lastName: user.lastName,
+                                            patronymic: user.patronymic,
+                                            position: user.position,
+                                            team: user.team,
+                                        });
                                     }
                                 });
                                 return res.json({users: resUsers});
@@ -96,6 +126,7 @@ router.get("/getTasks", function(req, res){
                                 deadline: task.deadline,
                                 closedTasks: task.closedUsersCount,
                                 issuedTasks: task.usersCount,
+                                additionally: task.additionally,
                             }})
                     });
                 });
@@ -103,7 +134,7 @@ router.get("/getTasks", function(req, res){
         })(req, res);
 });
 router.post('/createTask', function(req, res){
-    const {title, description, type, deadline} = req.body;
+    const {title, description, type, deadline, additionally} = req.body;
     passport.authenticate('jwt', {session: false},
         (err, user) => {
             if (err) {
@@ -114,34 +145,43 @@ router.post('/createTask', function(req, res){
                     description,
                     type,
                     deadline,
+                    additionally
                 });
                 newTask.save()
                     .then((task) => {
                         Users.find().then(users => {
+                            const newIssuedTasks = [];
                             users.forEach(user => {
                                 if (user.role === 'admin') return;
-                                const newIssuedTasks = new IssuedTasks({
+                                newIssuedTasks.push({
                                     taskId: task._id,
                                     userId: user._id,
                                     status: "new",
                                 });
-                                newIssuedTasks.save()
                             })
-                        });
-                        Tasks.find().populate('usersCount').populate('closedUsersCount').then(tasks => {
-                            return res.json({tasks: tasks.map((task) => {
-                                    return {
-                                        id: task._id,
-                                        title: task.title,
-                                        description: task.description,
-                                        type: task.type,
-                                        created: task.created,
-                                        deadline: task.deadline,
-                                        closedTasks: task.closedUsersCount,
-                                        issuedTasks: task.usersCount,
-                                    }})
+                            IssuedTasks.collection.insert(newIssuedTasks, (err) => {
+                                if (err) {
+                                    res.json({message: err.name});
+                                }else {
+                                    Tasks.find().populate('usersCount').populate('closedUsersCount').then(tasks => {
+                                        return res.json({tasks: tasks.map((task) => {
+                                                return {
+                                                    id: task._id,
+                                                    title: task.title,
+                                                    description: task.description,
+                                                    type: task.type,
+                                                    created: task.created,
+                                                    deadline: task.deadline,
+                                                    closedTasks: task.closedUsersCount,
+                                                    issuedTasks: task.usersCount,
+                                                    additionally: task.additionally,
+                                                }})
+                                        });
+                                    });
+                                }
                             });
                         });
+
                     }, error=> {
                         res.json({message: error.name});
                     });
@@ -151,13 +191,13 @@ router.post('/createTask', function(req, res){
         })(req, res);
 });
 router.post('/editTask', function(req, res){
-    const {id, title, description, type, deadline} = req.body;
+    const {id, title, description, type, deadline, additionally} = req.body;
     passport.authenticate('jwt', {session: false},
         (err, user) => {
             if (err) {
                 res.json({message: err.name});
             }else if (user.role === 'admin') {
-                Tasks.findByIdAndUpdate(id, {title, description, type, deadline}, function (err) {
+                Tasks.findByIdAndUpdate(id, {title, description, type, deadline, additionally}, function (err) {
                     if (err) {
                         res.json({message: err.name});
                     }else {
@@ -172,6 +212,7 @@ router.post('/editTask', function(req, res){
                                         deadline: task.deadline,
                                         closedTasks: task.closedUsersCount,
                                         issuedTasks: task.usersCount,
+                                        additionally: task.additionally,
                                     }})
                             });
                         });
@@ -206,6 +247,7 @@ router.delete('/deleteTask', function(req, res){
                                             deadline: task.deadline,
                                             closedTasks: task.closedUsersCount,
                                             issuedTasks: task.usersCount,
+                                            additionally: task.additionally,
                                         }})
                                 });
                             });
@@ -229,7 +271,8 @@ router.post("/getTaskUsers", function(req, res){
                     return res.json({tasks: tasks.map((task) => {
                             return {
                                 id: task._id,
-                                name: task.userId.name,
+                                firstName: task.userId.firstName,
+                                lastName: task.userId.lastName,
                                 status: task.status,
                                 result: task.result,
                                 closedDate: task.closedDate,
@@ -254,7 +297,8 @@ router.post("/openTask", function(req, res){
                             return res.json({tasks: tasks.map((task) => {
                                     return {
                                         id: task._id,
-                                        name: task.userId.name,
+                                        firstName: task.userId.firstName,
+                                        lastName: task.userId.lastName,
                                         status: task.status,
                                         result: task.result,
                                         closedDate: task.closedDate,

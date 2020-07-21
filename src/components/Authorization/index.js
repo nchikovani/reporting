@@ -12,13 +12,29 @@ function Authorization(props) {
         authShowPassword: false,
         registerPassword: '',
         registerLogin: '',
-        registerName: '',
+        registerFirstName: '',
+        registerLastName: '',
+        registerPatronymic: '',
+        registerPosition: '',
+        registerTeam: '',
+        registerSignature: '',
         registerShowPassword: false,
         activeTab: 'authorization',
     });
     const handleChange = (prop) => (event) => {
         setValues({ ...values, [prop]: event.target.value });
     };
+    const handleImageChange = (e) => {
+        const reader = new FileReader(),
+        file = e.target.files[0];
+        reader.onloadend = () => {
+            setValues({
+                ...values,
+                registerSignature: reader.result
+            });
+        }
+        reader.readAsDataURL(file)
+    }
     const handleClickShowPassword = (prop) => {
         setValues({ ...values, [prop]: !values[prop] });
     };
@@ -30,7 +46,7 @@ function Authorization(props) {
         event.preventDefault();
     };
     const handleClickAuthorization = () => {
-        const data = {login: values.authLogin, password: values.authPassword};
+        const data = {login: values.authLogin,password: values.authPassword};
         fetch('/login', {
             method: 'POST',
             body:  JSON.stringify(data),
@@ -59,7 +75,16 @@ function Authorization(props) {
         );
     }
     const handleClickRegistration = () => {
-        const data = {login: values.registerLogin, password: values.registerPassword, name: values.registerName};
+        const data = {
+            login: values.registerLogin,
+            password: values.registerPassword,
+            firstName: values.registerFirstName,
+            lastName: values.registerLastName,
+            patronymic: values.registerPatronymic,
+            position: values.registerPosition,
+            team: values.registerTeam,
+            signature: values.registerSignature,
+        };
         fetch('/register', {
             method: 'POST',
             body:  JSON.stringify(data),
@@ -90,7 +115,7 @@ function Authorization(props) {
                 <div className={classNames("authorization", values.activeTab === "authorization" && "authorization_active")}>
                     <Input
                         className="authorization__input"
-                        placeholder="Введите логин"
+                        placeholder="Логин"
                         value={values.authLogin}
                         onChange={handleChange('authLogin')}
                     />
@@ -99,7 +124,7 @@ function Authorization(props) {
                         type={values.authShowPassword ? 'text' : 'password'}
                         value={values.authPassword}
                         onChange={handleChange('authPassword')}
-                        placeholder="Введите пароль"
+                        placeholder="Пароль"
                         endAdornment={
                             <InputAdornment position="end">
                                 <IconButton
@@ -128,15 +153,39 @@ function Authorization(props) {
                 <div className={classNames("registration", values.activeTab === "registration" && "registration_active")}>
                     <Input
                         className="authorization__input"
-                        placeholder="Введите логин"
+                        placeholder="Логин"
                         value={values.registerLogin}
                         onChange={handleChange('registerLogin')}
                     />
                     <Input
                         className="authorization__input"
-                        placeholder="Введите Имя"
-                        value={values.registerName}
-                        onChange={handleChange('registerName')}
+                        placeholder="Имя"
+                        value={values.registerFirstName}
+                        onChange={handleChange('registerFirstName')}
+                    />
+                    <Input
+                        className="authorization__input"
+                        placeholder="Фамилия"
+                        value={values.registerLastName}
+                        onChange={handleChange('registerLastName')}
+                    />
+                    <Input
+                        className="authorization__input"
+                        placeholder="Отчество"
+                        value={values.registerPatronymic}
+                        onChange={handleChange('registerPatronymic')}
+                    />
+                    <Input
+                        className="authorization__input"
+                        placeholder="Должность"
+                        value={values.registerPosition}
+                        onChange={handleChange('registerPosition')}
+                    />
+                    <Input
+                        className="authorization__input"
+                        placeholder="Команда"
+                        value={values.registerTeam}
+                        onChange={handleChange('registerTeam')}
                     />
                     <Input
                         className="authorization__input"
@@ -155,6 +204,18 @@ function Authorization(props) {
                                 </IconButton>
                             </InputAdornment>
                         }
+                    />
+                    <Button
+                        variant="outlined"
+                        disabled={values.registerSignature}
+                        onClick={() => document.querySelector('.registration__import-signature').click()}
+                        className="registration__button-signature"
+                    >Загрузить подпись</Button>
+                    <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(event) => handleImageChange(event)}
+                        className="registration__import-signature"
                     />
                     <Button
                         color="primary"

@@ -1,9 +1,15 @@
 const mongoose = require('mongoose');
 const crypto = require('crypto');
 const UsersSchema = new mongoose.Schema({
+    role: String,
     login: String,
     name: String,
-    role: String,
+    firstName: String,
+    lastName: String,
+    patronymic: String,
+    position: String,
+    team: String,
+    signature: Buffer,
     hash: String,
     salt: String,
 });

@@ -1,13 +1,17 @@
 const mongoose = require('mongoose');
 const TasksSchema = new mongoose.Schema({
-    created: {
-        type: Date,
-        default: Date.now,
-    },
     title: String,
     description: String,
     type: String,
     deadline: Date,
+    created: {
+        type: Date,
+        default: Date.now,
+    },
+    additionally: {
+        validFrom: Date,
+        validUntil: Date,
+    },
 });
 TasksSchema.virtual('usersCount', {
     ref: 'IssuedTasks', // The model to use

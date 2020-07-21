@@ -14,6 +14,7 @@ router.get("/getTasks", function(req, res){
                     .then(issuedTasks => {
                         return res.json({
                             tasks: issuedTasks.map((task) => {
+                                console.log(task)
                                 return {
                                     id: task._id,
                                     title: task.taskId.title,
@@ -24,6 +25,7 @@ router.get("/getTasks", function(req, res){
                                     status: task.status,
                                     closedDate: task.closedDate,
                                     result: task.result,
+                                    additionally: task.taskId.additionally,
                                 }
                             })
                         });
@@ -57,6 +59,7 @@ router.post("/closeTask", function(req, res){
                                                 status: task.status,
                                                 closedDate: task.closedDate,
                                                 result: task.result,
+                                                additionally: task.additionally,
                                             }
                                         })
                                     });

@@ -1,6 +1,6 @@
 import React from 'react';
 import 'date-fns';
-import {TextField, Button, InputLabel, Select, FormControl, TableCell} from "@material-ui/core";
+import {TextField, Button, InputLabel, Select, FormControl, Typography} from "@material-ui/core";
 import {MuiPickersUtilsProvider, KeyboardDatePicker} from "@material-ui/pickers";
 import DateFnsUtils from '@date-io/date-fns';
 import PropTypes from "prop-types";
@@ -16,12 +16,18 @@ function TaskCreate({task, setTasks, action}) {
             type: task.type,
             deadline: task.deadline,
         }
+        if (task.additionally) {
+            initState.validFrom =  task.additionally.validFrom || null;
+            initState.validUntil =  task.additionally.validUntil || null;
+        }
     } else {
         initState = {
             title: "",
             description: "",
             type: "",
             deadline: null,
+            validFrom: null,
+            validUntil: null,
         }
     }
     const [values, setValues] = React.useState(initState);
@@ -37,6 +43,10 @@ function TaskCreate({task, setTasks, action}) {
                 description: values.description,
                 type: values.type,
                 deadline: values.deadline,
+                additionally: {
+                    validFrom: values.validFrom,
+                    validUntil: values.validUntil,
+                },
             }),
             headers: {
                 'Content-Type': 'application/json',
@@ -66,6 +76,10 @@ function TaskCreate({task, setTasks, action}) {
                 description: values.description,
                 type: values.type,
                 deadline: values.deadline,
+                additionally: {
+                    validFrom: values.validFrom,
+                    validUntil: values.validUntil,
+                },
             }),
             headers: {
                 'Content-Type': 'application/json',
@@ -88,6 +102,30 @@ function TaskCreate({task, setTasks, action}) {
     }
     return (
         <div className="task-create">
+            {
+                action === "create" ?
+                <FormControl variant="outlined" margin="normal">
+                    <InputLabel htmlFor="task-create__type-selection">Тип</InputLabel>
+                    <Select
+                        native
+                        value={values.type}
+                        onChange={handleChange("type")}
+                        label="Age"
+                        inputProps={{
+                            name: 'type',
+                            id: 'task-create__type-selection',
+                        }}
+                    >
+                        <option aria-label="None" value="" />
+                        <option value="familiarize">Ознакомиться</option>
+                        <option value="opdCard">Карта ОПД</option>
+                    </Select>
+                </FormControl> :
+                <Typography>
+                    {values.type === "familiarize" && "Ознакомиться"}
+                    {values.type === "opdCard" && "Карта ОПД"}
+                </Typography>
+            }
             <TextField
                 label="Заголовок"
                 value={values.title}
@@ -106,24 +144,6 @@ function TaskCreate({task, setTasks, action}) {
                 onChange={handleChange('description')}
                 variant="outlined"
             />
-            <FormControl variant="outlined" margin="normal">
-                <InputLabel htmlFor="task-create__type-selection">Тип</InputLabel>
-                <Select
-                    native
-                    value={values.type}
-                    onChange={handleChange("type")}
-                    label="Age"
-                    inputProps={{
-                        name: 'type',
-                        id: 'task-create__type-selection',
-                    }}
-                >
-                    <option aria-label="None" value="" />
-                    <option value="Ознакомиться">Ознакомиться</option>
-                    <option value="Подписать документ">Подписать документ</option>
-                    <option value="Сформировать отчет">Сформировать отчет</option>
-                </Select>
-            </FormControl>
             <MuiPickersUtilsProvider utils={DateFnsUtils}>
                 <KeyboardDatePicker
                     autoOk
@@ -137,6 +157,39 @@ function TaskCreate({task, setTasks, action}) {
                     InputAdornmentProps={{ position: "start" }}
                 />
             </MuiPickersUtilsProvider>
+            {
+                values.type === "opdCard" &&
+                <div>
+                    <Typography className="task-create__typography">Период действия</Typography>
+                    <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                        <KeyboardDatePicker
+                            autoOk
+                            variant="inline"
+                            margin="normal"
+                            inputVariant="outlined"
+                            format="dd/MM/yyyy"
+                            label="c"
+                            value={values.validFrom}
+                            onChange={(date) => setValues({...values, 'validFrom': date})}
+                            InputAdornmentProps={{ position: "start" }}
+                        />
+                    </MuiPickersUtilsProvider>
+                    <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                        <KeyboardDatePicker
+                            autoOk
+                            variant="inline"
+                            margin="normal"
+                            inputVariant="outlined"
+                            format="dd/MM/yyyy"
+                            label="по"
+                            value={values.validUntil}
+                            onChange={(date) => setValues({...values, 'validUntil': date})}
+                            InputAdornmentProps={{ position: "start" }}
+                        />
+                    </MuiPickersUtilsProvider>
+                </div>
+
+            }
             {
                 action === "create" ?
                 <Button
@@ -162,3 +215,4 @@ TaskCreate.propTypes = {
     action: PropTypes.string,
 };
 export default TaskCreate;
+
