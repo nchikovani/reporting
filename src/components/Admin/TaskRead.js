@@ -1,7 +1,10 @@
 import React from 'react';
-import {Table, TableCell, TableRow, TableBody, Card, CardContent, Typography, Button} from "@material-ui/core";
+import { saveAs } from 'file-saver';
+import { pdf } from '@react-pdf/renderer';
+import {Table, TableCell, TableRow, TableBody, Card, CardContent, Typography, Button, Link} from "@material-ui/core";
 import PropTypes from "prop-types";
-
+import {PDFDownloadLink} from "@react-pdf/renderer";
+import OpdCard from "../pdf/OpdCard";
 class TaskRead extends React.Component {
     constructor(props) {
         super(props);
@@ -28,7 +31,7 @@ class TaskRead extends React.Component {
                 id: id,
             }),
             headers: {
-                    'Content-Type': 'application/json',
+                'Content-Type': 'application/json',
                 "Authorization": `Bearer ${localStorage.token}`
             }})
             .then(res => {
@@ -69,6 +72,20 @@ class TaskRead extends React.Component {
                 alert(err);
             });
     }
+    generatePdfDocument(documentData) {
+        pdf((
+            <OpdCard
+                validFrom={documentData.validFrom}
+                validUntil={documentData.validUntil}
+                records={documentData.records}
+                firstName ={documentData.firstName}
+                lastName ={documentData.lastName}
+                patronymic ={documentData.patronymic}
+                position ={documentData.position}
+                signature ={documentData.signature}
+            />
+        )).toBlob().then((res) => {saveAs(res, documentData.fileName)});
+    }
     render() {
         const task = this.props.task;
         return (
@@ -103,11 +120,11 @@ class TaskRead extends React.Component {
                             <React.Fragment>
                                 <TableRow>
                                     <TableCell component="th" scope="row">С:</TableCell>
-                                    <TableCell>{this.formatDate(task.additionally.validFrom)}</TableCell>
+                                    <TableCell>{this.formatDate(task.extension.validFrom)}</TableCell>
                                 </TableRow>
                                 <TableRow>
                                     <TableCell component="th" scope="row">По:</TableCell>
-                                    <TableCell>{this.formatDate(task.additionally.validUntil)}</TableCell>
+                                    <TableCell>{this.formatDate(task.extension.validUntil)}</TableCell>
                                 </TableRow>
                             </React.Fragment>
                         }
@@ -126,20 +143,47 @@ class TaskRead extends React.Component {
                                         <Typography variant="body1">
                                             {`${user.lastName} ${user.firstName} (${user.status === 'closed' ? 'Закрыто' : 'Открыто'})`}
                                         </Typography>
-                                        <Typography variant="body1">
-                                            {this.formatDate(user.closedDate)}
-                                        </Typography>
-                                        <Typography variant="body1" color="textSecondary">
-                                            {user.result}
-                                        </Typography>
                                         {
-                                            user.status === 'closed' &&
-                                            <Button
-                                                variant="contained"
-                                                color="primary"
-                                                className="task-read__button-open"
-                                                onClick={() => this.submitOpen(user.id)}
-                                            >Открыть</Button>
+                                            user.status==='closed' &&
+                                            <React.Fragment>
+                                                <Typography variant="body1">
+                                                    {this.formatDate(user.closedDate)}
+                                                </Typography>
+                                                <Typography variant="body1" color="textSecondary">
+                                                {
+                                                    task.type === 'familiarize' &&
+                                                    user.result
+                                                }
+                                                {
+                                                    task.type === 'opdCard' &&
+                                                        <Link
+                                                            href="#"
+                                                            onClick={()=>this.generatePdfDocument({
+                                                                validFrom: this.formatDate(task.extension.validFrom),
+                                                                validUntil: this.formatDate(task.extension.validUntil),
+                                                                records: user.opdRecords,
+                                                                firstName: user.firstName,
+                                                                lastName: user.lastName,
+                                                                patronymic: user.patronymic,
+                                                                position: user.position,
+                                                                signature: user.signature,
+                                                                fileName: user.fileName,
+                                                            })}
+                                                        >Скачать файл</Link>
+                                                    // <PDFDownloadLink
+                                                    //     document={}
+                                                    //     fileName={user.fileName}
+                                                    //     // className="task-read__opd-preview-link"
+                                                    // >Скачать файл</PDFDownloadLink>
+                                                }
+                                                </Typography>
+                                                <Button
+                                                    variant="contained"
+                                                    color="primary"
+                                                    className="task-read__button-open"
+                                                    onClick={() => this.submitOpen(user.id)}
+                                                >Открыть</Button>
+                                            </React.Fragment>
                                         }
 
                                     </CardContent>

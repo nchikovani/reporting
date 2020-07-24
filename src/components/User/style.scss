@@ -2,9 +2,20 @@
   display: flex;
   justify-content: flex-end;
 }
-
-.task-read .task-read__button-submit {
-  margin-left: auto;
-  margin-top: 0.4em;
+.task-read .task-read__percentage-field {
   display: block;
+}
+.task-read__buttons{
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.5em;
+}
+.task-read .task-read__button-submit {
+  margin-left: 0.5em;
+}
+.task-read .task-read_-button-add-task {
+  margin-top: 0.5em;
+}
+.task-read__opd-preview-link {
+  display: none;
 }

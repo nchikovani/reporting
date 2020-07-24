@@ -159,15 +159,15 @@ function Authorization(props) {
                     />
                     <Input
                         className="authorization__input"
-                        placeholder="Имя"
-                        value={values.registerFirstName}
-                        onChange={handleChange('registerFirstName')}
-                    />
-                    <Input
-                        className="authorization__input"
                         placeholder="Фамилия"
                         value={values.registerLastName}
                         onChange={handleChange('registerLastName')}
+                    />
+                    <Input
+                        className="authorization__input"
+                        placeholder="Имя"
+                        value={values.registerFirstName}
+                        onChange={handleChange('registerFirstName')}
                     />
                     <Input
                         className="authorization__input"

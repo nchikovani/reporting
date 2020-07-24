@@ -15,6 +15,10 @@ const IssuedTasksSchema = new mongoose.Schema({
     status: String,
     closedDate: Date,
     result: String,
+    extension: {
+        fileName: String,
+        opdRecords: Array,
+    },
 });
 
 const IssuedTasks = mongoose.model('IssuedTasks', IssuedTasksSchema);

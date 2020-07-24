@@ -126,7 +126,7 @@ router.get("/getTasks", function(req, res){
                                 deadline: task.deadline,
                                 closedTasks: task.closedUsersCount,
                                 issuedTasks: task.usersCount,
-                                additionally: task.additionally,
+                                extension: task.extension,
                             }})
                     });
                 });
@@ -134,7 +134,7 @@ router.get("/getTasks", function(req, res){
         })(req, res);
 });
 router.post('/createTask', function(req, res){
-    const {title, description, type, deadline, additionally} = req.body;
+    const {title, description, type, deadline, extension} = req.body;
     passport.authenticate('jwt', {session: false},
         (err, user) => {
             if (err) {
@@ -145,7 +145,7 @@ router.post('/createTask', function(req, res){
                     description,
                     type,
                     deadline,
-                    additionally
+                    extension
                 });
                 newTask.save()
                     .then((task) => {
@@ -174,7 +174,7 @@ router.post('/createTask', function(req, res){
                                                     deadline: task.deadline,
                                                     closedTasks: task.closedUsersCount,
                                                     issuedTasks: task.usersCount,
-                                                    additionally: task.additionally,
+                                                    extension: task.extension,
                                                 }})
                                         });
                                     });
@@ -191,13 +191,13 @@ router.post('/createTask', function(req, res){
         })(req, res);
 });
 router.post('/editTask', function(req, res){
-    const {id, title, description, type, deadline, additionally} = req.body;
+    const {id, title, description, type, deadline, extension} = req.body;
     passport.authenticate('jwt', {session: false},
         (err, user) => {
             if (err) {
                 res.json({message: err.name});
             }else if (user.role === 'admin') {
-                Tasks.findByIdAndUpdate(id, {title, description, type, deadline, additionally}, function (err) {
+                Tasks.findByIdAndUpdate(id, {title, description, type, deadline, extension}, function (err) {
                     if (err) {
                         res.json({message: err.name});
                     }else {
@@ -212,7 +212,7 @@ router.post('/editTask', function(req, res){
                                         deadline: task.deadline,
                                         closedTasks: task.closedUsersCount,
                                         issuedTasks: task.usersCount,
-                                        additionally: task.additionally,
+                                        extension: task.extension,
                                     }})
                             });
                         });
@@ -247,7 +247,7 @@ router.delete('/deleteTask', function(req, res){
                                             deadline: task.deadline,
                                             closedTasks: task.closedUsersCount,
                                             issuedTasks: task.usersCount,
-                                            additionally: task.additionally,
+                                            extension: task.extension,
                                         }})
                                 });
                             });
@@ -273,6 +273,11 @@ router.post("/getTaskUsers", function(req, res){
                                 id: task._id,
                                 firstName: task.userId.firstName,
                                 lastName: task.userId.lastName,
+                                opdRecords: task.extension.opdRecords,
+                                fileName: task.extension.fileName,
+                                patronymic: task.userId.patronymic,
+                                position: task.userId.position,
+                                signature: task.userId.signature,
                                 status: task.status,
                                 result: task.result,
                                 closedDate: task.closedDate,
@@ -299,6 +304,11 @@ router.post("/openTask", function(req, res){
                                         id: task._id,
                                         firstName: task.userId.firstName,
                                         lastName: task.userId.lastName,
+                                        opdRecords: task.extension.opdRecords,
+                                        fileName: task.extension.fileName,
+                                        patronymic: task.userId.patronymic,
+                                        position: task.userId.position,
+                                        signature: task.userId.signature,
                                         status: task.status,
                                         result: task.result,
                                         closedDate: task.closedDate,

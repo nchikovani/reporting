@@ -16,9 +16,9 @@ function TaskCreate({task, setTasks, action}) {
             type: task.type,
             deadline: task.deadline,
         }
-        if (task.additionally) {
-            initState.validFrom =  task.additionally.validFrom || null;
-            initState.validUntil =  task.additionally.validUntil || null;
+        if (task.extension) {
+            initState.validFrom =  task.extension.validFrom || null;
+            initState.validUntil =  task.extension.validUntil || null;
         }
     } else {
         initState = {
@@ -43,7 +43,7 @@ function TaskCreate({task, setTasks, action}) {
                 description: values.description,
                 type: values.type,
                 deadline: values.deadline,
-                additionally: {
+                extension: {
                     validFrom: values.validFrom,
                     validUntil: values.validUntil,
                 },
@@ -76,7 +76,7 @@ function TaskCreate({task, setTasks, action}) {
                 description: values.description,
                 type: values.type,
                 deadline: values.deadline,
-                additionally: {
+                extension: {
                     validFrom: values.validFrom,
                     validUntil: values.validUntil,
                 },

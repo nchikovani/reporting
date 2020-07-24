@@ -12,7 +12,7 @@ class App extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            path: "/user",
+            path: "",
         }
         this.setPath = this.setPath.bind(this);
     }

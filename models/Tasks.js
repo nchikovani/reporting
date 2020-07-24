@@ -8,7 +8,7 @@ const TasksSchema = new mongoose.Schema({
         type: Date,
         default: Date.now,
     },
-    additionally: {
+    extension: {
         validFrom: Date,
         validUntil: Date,
     },
