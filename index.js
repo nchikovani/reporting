@@ -14,7 +14,7 @@ app.use(bodyParser.json({limit: '10mb', extended: true}));
 const uri = "mongodb+srv://admin:admin@cluster0.vr7at.mongodb.net/reporting?retryWrites=true&w=majority";
 mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true}, function(err){
     if(err) return console.log(err);
-    app.listen(8080, function(){
+    app.listen(process.env.PORT || 8080, function(){
         console.log("Сервер ожидает подключения...");
     });
 });
