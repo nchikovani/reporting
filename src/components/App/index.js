@@ -12,67 +12,70 @@ class App extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            path: "",
+            role: '',
+            login: '',
+            requestCompleted: false,
         }
-        this.setPath = this.setPath.bind(this);
+        this.setRoleLogin = this.setRoleLogin.bind(this);
     }
-    setPath(newPath) {
-        this.setState({path: newPath});
+    setRoleLogin(role, login) {
+        this.setState({ ...this.state, role, login});
     }
     componentDidMount() {
-        fetch('userinfo', {
+        fetch('/userinfo', {
             method: "GET",
             headers: {
                 "Authorization": `Bearer ${localStorage.token}`
             }})
             .then(res => {
                 if (res.status === 403) {
-                    this.setState({path: "/"});
+                    this.setState({role: '', login: '', requestCompleted: true});
                 } else {
                     res.json().then(body => {
                         if (body.message) {
                             alert(body.message);
-                        } else if (body.role === "admin") {
-                            this.setState({path: "/admin"});
-                        } else if (body.role === "user") {
-                            this.setState({path: "/user/" + body.login});
+                        } else {
+                            this.setState({role: body.role, login: body.login, requestCompleted: true})
                         }
                     });
                 }
             })
             .catch(err => {
                 console.log(err)
-                this.setState({path: "/"});
+                this.setState({role: '', login: '', requestCompleted: true});
             });
     }
     render() {
         return(
             <React.Fragment>
-                <BrowserRouter>
-                    <Switch>
-                        <Route exact path="/">
-                            {this.state.path === "/" ?
-                                <Authorization
-                                    setPath={this.setPath}
-                                /> :
-                                <Redirect to={this.state.path}/>}
-                        </Route>
-                        <Route exact path="/admin">
-                            {this.state.path === "/admin" ?
-                                <Admin
-                                    setPath={this.setPath}
-                                /> :
-                                <Redirect to={this.state.path}/>}
-                        </Route>
-                        <Route exact path="/user/:login">
-                            {this.state.path.slice(0, 5) === "/user" ?
-                                <User
-                                    setPath={this.setPath}
-                                /> :
-                                <Redirect to={this.state.path}/>}
-                        </Route>
-                    </Switch>
-                </BrowserRouter>
+                {
+                    this.state.requestCompleted &&
+                    <BrowserRouter>
+                        <Switch>
+                            <Route exact path="/">
+                                {this.state.role === '' ?
+                                    <Authorization
+                                        setRoleLogin={this.setRoleLogin}
+                                    /> :
+                                    <Redirect to={this.state.role === 'admin' ? '/admin' : '/user/' + this.state.login}/>}
+                            </Route>
+                            <Route exact path="/admin">
+                                {this.state.role === "admin" ?
+                                    <Admin
+                                        setRoleLogin={this.setRoleLogin}
+                                    /> :
+                                    <Redirect to={this.state.role === '' ? '/' : '/user/' + this.state.login}/>}
+                            </Route>
+                            <Route exact path="/user/:login">
+                                {this.state.role === "user" ?
+                                    <User
+                                        setRoleLogin={this.setRoleLogin}
+                                    /> :
+                                    <Redirect to={this.state.role === '' ? '/' : '/admin'}/>}
+                            </Route>
+                        </Switch>
+                    </BrowserRouter>
+                }
                 <ModalWindow
                     open={this.props.modalIsOpen}
                     body={this.props.modalBody}

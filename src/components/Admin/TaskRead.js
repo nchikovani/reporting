@@ -72,7 +72,8 @@ class TaskRead extends React.Component {
                 alert(err);
             });
     }
-    generatePdfDocument(documentData) {
+    generatePdfDocument(event, documentData) {
+        event.preventDefault();
         pdf((
             <OpdCard
                 validFrom={documentData.validFrom}
@@ -158,7 +159,7 @@ class TaskRead extends React.Component {
                                                     task.type === 'opdCard' &&
                                                         <Link
                                                             href="#"
-                                                            onClick={()=>this.generatePdfDocument({
+                                                            onClick={(e)=>this.generatePdfDocument(e, {
                                                                 validFrom: this.formatDate(task.extension.validFrom),
                                                                 validUntil: this.formatDate(task.extension.validUntil),
                                                                 records: user.opdRecords,

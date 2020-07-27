@@ -30,7 +30,7 @@ class Admin extends React.PureComponent {
     };
     handleLogOut() {
         localStorage.removeItem("token");
-        this.props.setPath('/');
+        this.props.setRoleLogin('', '');
     }
     setUsers(users) {
         this.setState ({
@@ -118,6 +118,6 @@ class Admin extends React.PureComponent {
     }
 }
 Admin.propTypes = {
-    setPath: PropTypes.func,
+    setRoleLogin: PropTypes.func,
 };
 export default Admin;

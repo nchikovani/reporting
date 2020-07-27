@@ -58,14 +58,9 @@ function Authorization(props) {
                 return response.json().then(body => {
                     if(body.message) {
                         alert(body.message);
-                    } else if (body.role === 'admin'){
-                        // store.dispatch(addToken(body.token));
+                    } else {
                         localStorage.setItem("token", body.token);
-                        props.setPath('/admin');
-                    } else if (body.role === 'user') {
-                        // store.dispatch(addToken(body.token));
-                        localStorage.setItem("token", body.token);
-                        props.setPath('/user/' + body.login);
+                        props.setRoleLogin(body.role, body.login);
                     }
                 });
             },
@@ -97,9 +92,8 @@ function Authorization(props) {
                     if(body.message) {
                         alert(body.message);
                     } else {
-                        // store.dispatch(addToken(body.token));
                         localStorage.setItem("token", body.token);
-                        props.setPath('/user/' + body.login);
+                        props.setRoleLogin('user', body.login);
                     }
                 });
             },

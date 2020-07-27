@@ -16,7 +16,7 @@ class User extends React.Component {
     }
     handleLogOut() {
         localStorage.removeItem("token");
-        this.props.setPath('/');
+        this.props.setRoleLogin('', '');
     }
     setTasks(tasks) {
         this.setState ({
@@ -63,7 +63,7 @@ class User extends React.Component {
     }
 }
 User.propTypes = {
-    setPath: PropTypes.func,
+    setRoleLogin: PropTypes.func,
 };
 
 export default User;

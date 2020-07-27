@@ -11,6 +11,7 @@ router.get("/getUsers", function(req, res){
             if (err) {
                 res.json({message: err.name});
             }else if (user.role === "admin") {
+
                 Users.find().then(users => {
                     const resUsers = [];
                     users.forEach(user => {
