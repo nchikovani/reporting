@@ -11,6 +11,8 @@ const TasksSchema = new mongoose.Schema({
     extension: {
         validFrom: Date,
         validUntil: Date,
+        pdfFile: Buffer,
+        signatureInfo: Object,
     },
 });
 TasksSchema.virtual('usersCount', {

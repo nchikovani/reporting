@@ -3,15 +3,14 @@ import { saveAs } from 'file-saver';
 import { pdf } from '@react-pdf/renderer';
 import {Table, TableCell, TableRow, TableBody, Card, CardContent, Typography, Button, Link} from "@material-ui/core";
 import PropTypes from "prop-types";
-import {PDFDownloadLink} from "@react-pdf/renderer";
 import OpdCard from "../pdf/OpdCard";
+import {degrees, PDFDocument} from "pdf-lib";
 class TaskRead extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             users: [],
         }
-
     }
     setUsers(users) {
         this.setState ({
@@ -87,6 +86,27 @@ class TaskRead extends React.Component {
             />
         )).toBlob().then((res) => {saveAs(res, documentData.fileName)});
     }
+    async downloadSignedPdf(event, signature) {
+        event.preventDefault();
+        const pdfDoc = await PDFDocument.load(Buffer.from(this.props.task.extension.pdfFile.data).toString('utf8')),
+            pngImage = await pdfDoc.embedPng(Buffer.from(signature).toString('utf8')),
+            pages = pdfDoc.getPages(),
+            firstPage = pages[0],
+            pageWidth= firstPage.getSize().width,
+            pageHeight= firstPage.getSize().height,
+            pageRotation = firstPage.getRotation().angle,
+            {x, y, width, height} = this.props.task.extension.signatureInfo;
+        firstPage.drawImage(pngImage, {
+            x: (pageRotation===0) ? (x * pageWidth) : ((1-y) * pageWidth),
+            y: (pageRotation===0) ? (y * pageHeight) : (x * pageHeight),
+            width: width * ((pageRotation===0) ? pageWidth : pageHeight),
+            height: height * ((pageRotation===0) ? pageHeight : pageWidth),
+            rotate: degrees(pageRotation),
+        });
+        const pdfBytes = await pdfDoc.save();
+        const newBlob = new Blob([pdfBytes]);
+        saveAs(newBlob, this.props.task.title + '.pdf');
+    }
     render() {
         const task = this.props.task;
         return (
@@ -106,6 +126,7 @@ class TaskRead extends React.Component {
                             <TableCell>
                                 {task.type === "familiarize" && "Ознакомиться"}
                                 {task.type === "opdCard" && "Карта ОПД"}
+                                {task.type === "sign" && "Подписать"}
                             </TableCell>
                         </TableRow>
                         <TableRow>
@@ -171,12 +192,14 @@ class TaskRead extends React.Component {
                                                                 fileName: user.fileName,
                                                             })}
                                                         >Скачать файл</Link>
-                                                    // <PDFDownloadLink
-                                                    //     document={}
-                                                    //     fileName={user.fileName}
-                                                    //     // className="task-read__opd-preview-link"
-                                                    // >Скачать файл</PDFDownloadLink>
                                                 }
+                                                    {
+                                                        task.type === 'sign' &&
+                                                        <Link
+                                                            href="#"
+                                                            onClick={(e)=>this.downloadSignedPdf(e, user.signature)}
+                                                        >Скачать файл</Link>
+                                                    }
                                                 </Typography>
                                                 <Button
                                                     variant="contained"

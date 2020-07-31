@@ -5,7 +5,8 @@ import {MuiPickersUtilsProvider, KeyboardDatePicker} from "@material-ui/pickers"
 import DateFnsUtils from '@date-io/date-fns';
 import PropTypes from "prop-types";
 import store from "../../store";
-import {closeModal} from "../../actions";
+import {closeModal, openModal} from "../../actions";
+import PdfView from './PdfView';
 
 function TaskCreate({task, setTasks, action}) {
     let initState;
@@ -19,15 +20,19 @@ function TaskCreate({task, setTasks, action}) {
         if (task.extension) {
             initState.validFrom =  task.extension.validFrom || null;
             initState.validUntil =  task.extension.validUntil || null;
+            initState.pdfFile =  task.extension.pdfFile || null;
+            initState.signatureInfo = task.extension.signatureInfo || {};
         }
     } else {
         initState = {
             title: "",
             description: "",
-            type: "",
+            type: "familiarize",
             deadline: null,
             validFrom: null,
             validUntil: null,
+            pdfFile: null,
+            signatureInfo: {},
         }
     }
     const [values, setValues] = React.useState(initState);
@@ -46,6 +51,8 @@ function TaskCreate({task, setTasks, action}) {
                 extension: {
                     validFrom: values.validFrom,
                     validUntil: values.validUntil,
+                    pdfFile: values.pdfFile,
+                    signatureInfo: values.signatureInfo,
                 },
             }),
             headers: {
@@ -79,6 +86,8 @@ function TaskCreate({task, setTasks, action}) {
                 extension: {
                     validFrom: values.validFrom,
                     validUntil: values.validUntil,
+                    pdfFile: values.pdfFile,
+                    signatureInfo: values.signatureInfo,
                 },
             }),
             headers: {
@@ -100,6 +109,20 @@ function TaskCreate({task, setTasks, action}) {
                 store.dispatch(closeModal());
             });
     }
+    const handleFileChange = (e) => {
+        const reader = new FileReader(),
+            file = e.target.files[0];
+        let base64;
+        reader.onload = async function(fileLoadedEvent) {
+            base64 = fileLoadedEvent.target.result;
+            store.dispatch(openModal(<PdfView
+                values={values}
+                setTasks={setTasks}
+                pdfFile={base64}
+            />));
+        };
+        reader.readAsDataURL(file);
+    }
     return (
         <div className="task-create">
             {
@@ -116,9 +139,9 @@ function TaskCreate({task, setTasks, action}) {
                             id: 'task-create__type-selection',
                         }}
                     >
-                        <option aria-label="None" value="" />
                         <option value="familiarize">Ознакомиться</option>
                         <option value="opdCard">Карта ОПД</option>
+                        <option value="sign">Подписать</option>
                     </Select>
                 </FormControl> :
                 <Typography>
@@ -157,6 +180,23 @@ function TaskCreate({task, setTasks, action}) {
                     InputAdornmentProps={{ position: "start" }}
                 />
             </MuiPickersUtilsProvider>
+            {
+                values.type === "sign" &&
+                <React.Fragment>
+                    <Button
+                        variant="outlined"
+                        disabled={values.registerSignature}
+                        onClick={() => document.querySelector('.task-create__import-file').click()}
+                        className="task-create__button-file"
+                    >Загрузить файл</Button>
+                    <input
+                        type="file"
+                        accept="application/pdf"
+                        onChange={(event) => handleFileChange(event)}
+                        className="task-create__import-file"
+                    />
+                </React.Fragment>
+            }
             {
                 values.type === "opdCard" &&
                 <div>

@@ -1,12 +1,15 @@
 import React from 'react';
-import {Table, TableCell, TableRow, TableBody, TextField, Button} from "@material-ui/core";
+import {Table, TableCell, TableRow, TableBody, TextField, Button, Link} from "@material-ui/core";
 import PropTypes from "prop-types";
 import store from "../../store";
-import {closeModal} from "../../actions";
+import {closeModal, openModal} from "../../actions";
 import OpdCard from '../pdf/OpdCard';
 import {PDFDownloadLink} from '@react-pdf/renderer';
 import {KeyboardDatePicker, MuiPickersUtilsProvider} from "@material-ui/pickers";
 import DateFnsUtils from "@date-io/date-fns";
+import { degrees, PDFDocument} from 'pdf-lib';
+import { saveAs } from 'file-saver';
+import PdfView from "../Admin/PdfView";
 
 class TaskRead extends React.Component {
     constructor(props) {
@@ -96,6 +99,27 @@ class TaskRead extends React.Component {
         months = ['январь', 'февраль', 'март', 'апрель', 'май', 'июнь', 'июль', 'август', 'сентябрь', 'октябрь', 'ноябрь', 'декабрь'];
         return months[newDate.getMonth()];
     }
+    async downloadSignedPdf(event) {
+        event.preventDefault();
+        const pdfDoc = await PDFDocument.load(Buffer.from(this.props.task.taskExtension.pdfFile.data).toString('utf8')),
+            pngImage = await pdfDoc.embedPng(Buffer.from(this.signature).toString('utf8')),
+            pages = pdfDoc.getPages(),
+            firstPage = pages[0],
+            pageWidth= firstPage.getSize().width,
+            pageHeight= firstPage.getSize().height,
+            pageRotation = firstPage.getRotation().angle,
+            {x, y, width, height} = this.props.task.taskExtension.signatureInfo;
+        firstPage.drawImage(pngImage, {
+            x: (pageRotation===0) ? (x * pageWidth) : ((1-y) * pageWidth),
+            y: (pageRotation===0) ? (y * pageHeight) : (x * pageHeight),
+            width: width * ((pageRotation===0) ? pageWidth : pageHeight),
+            height: height * ((pageRotation===0) ? pageHeight : pageWidth),
+            rotate: degrees(pageRotation),
+        });
+        const pdfBytes = await pdfDoc.save();
+        const newBlob = new Blob([pdfBytes]);
+        saveAs(newBlob, this.props.task.title + '.pdf');
+    }
     componentDidMount() {
         fetch('/user/getUserInfo',{
             method: "GET",
@@ -143,6 +167,7 @@ class TaskRead extends React.Component {
                             <TableCell>
                                 {task.type === "familiarize" && "Ознакомиться"}
                                 {task.type === "opdCard" && "Карта ОПД"}
+                                {task.type === "sign" && "Подписать"}
                             </TableCell>
                         </TableRow>
                         <TableRow>
@@ -191,6 +216,13 @@ class TaskRead extends React.Component {
                                             fileName={this.props.task.issuedTaskExtension.fileName}
                                             // className="task-read__opd-preview-link"
                                         >Скачать файл</PDFDownloadLink>
+                                    }
+                                    {
+                                        task.type === 'sign' && this.signature &&
+                                        <Link
+                                            href='#'
+                                            onClick={(e) => this.downloadSignedPdf(e)}
+                                        >Скачать файл</Link>
                                     }
                                 </TableCell>
                             </TableRow>
@@ -285,7 +317,7 @@ class TaskRead extends React.Component {
                                 color="primary"
                                 className="task-read__button-submit"
                                 onClick={()=>this.submitResult()}
-                            >Отправить</Button>
+                            >Закрыть</Button>
                         </div>
                     </React.Fragment>
                 }

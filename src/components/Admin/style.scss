@@ -5,10 +5,17 @@
 }
 .user-edit .user-edit__button-save,
 .task-create .task-create__button-save,
-.task-read .task-read__button-open{
+.task-read .task-read__button-open,
+.pdf-view .pdf-view__button-save {
   margin-left: auto;
   margin-top: 0.4em;
   display: block;
+}
+.user-edit,
+.user-read,
+.task-create,
+.task-read {
+  width: 30em;
 }
 .task-create__text-area {
   height: 20em;
@@ -29,4 +36,26 @@
 }
 .task-read__card-content {
   padding: 1em !important;
+}
+.task-create__import-file {
+  display: none;
+}
+.task-create .task-create__button-file {
+
+  display: block
+}
+.react-pdf__Page__annotations,
+.react-pdf__Page__textContent {
+  display: none;
+}
+.pdf-view__text {
+  margin-bottom: 0.4em;
+}
+.pdf-view__document-container {
+  position: relative;
+}
+.pdf-view__signature-field {
+  position: absolute;
+  display: none;
+  border: solid 1px black;
 }

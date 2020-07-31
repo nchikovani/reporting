@@ -2,6 +2,9 @@
   display: flex;
   justify-content: flex-end;
 }
+.task-read {
+  width: 30em;
+}
 .task-read .task-read__percentage-field {
   display: block;
 }
